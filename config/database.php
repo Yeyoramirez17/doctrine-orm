@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'driver' => 'pdo_mysql',
-    'host' => $_ENV['DB_HOST'],
-    'port' => $_ENV['DB_PORT'],
-    'dbname' => $_ENV['DB_NAME'],
-    'user' => $_ENV['DB_USER'],
-    'password' => $_ENV['DB_PASSWORD'],
+    'driver' => $_SERVER['DB_DRIVER'] ?? 'pdo_mysql',
+    'host' => $_SERVER['DB_HOST'] ?? 'localhost',
+    'port' => $_SERVER['DB_PORT'] ?? 3306,
+    'dbname' => $_SERVER['DB_NAME'] ?? '',
+    'user' => $_SERVER['DB_USER'] ?? '',
+    'password' => $_SERVER['DB_PASSWORD'] ?? '',
 ];
