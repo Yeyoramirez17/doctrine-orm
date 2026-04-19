@@ -11,11 +11,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'db:connect')]
 class DBConnectCommand extends Command
 {
-
     protected function configure(): void
     {
         $this->setDescription('Test database connection')
-            ->setHelp('This command allows you to test the database connection');
+          ->setHelp('This command allows you to test the database connection');
     }
 
     public function __invoke(SymfonyStyle $io): int
