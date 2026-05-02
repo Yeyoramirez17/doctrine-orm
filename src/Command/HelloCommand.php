@@ -16,7 +16,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand('app:hello')]
 class HelloCommand extends Command
 {
-
     protected function configure(): void
     {
         $this->setDescription('Hello Command')
@@ -25,7 +24,8 @@ class HelloCommand extends Command
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: 'Name to greeting (optional)')] ?string $name = null
+        #[Option(description: 'Name to greeting (optional)')]
+        ?string $name = null,
     ): int {
 
         if (empty($name)) {
