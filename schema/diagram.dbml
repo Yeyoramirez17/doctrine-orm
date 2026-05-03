@@ -1,0 +1,395 @@
+// 🇨🇴 E-Commerce Colombia - dbdiagram.io
+
+// ==================== ENUMS ====================
+Enum document_type {
+  CC
+  CE
+  TI
+  NIT
+  PP
+}
+
+Enum address_type {
+  billing
+  shipping
+}
+
+Enum payment_method {
+  PSE
+  NEQUI
+  DAVIPLATA
+  CARD
+  CASH
+  BANK_TRANSFER
+}
+
+Enum order_status {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  returned
+}
+
+Enum payment_status {
+  pending
+  approved
+  declined
+  refunded
+  chargeback
+}
+
+Enum shipment_status {
+  pending
+  packed
+  in_transit
+  out_for_delivery
+  delivered
+  returned
+  failed_delivery
+}
+
+Enum invoice_status {
+  draft
+  issued
+  validated
+  cancelled
+  rejected
+}
+
+// ==================== TABLAS ====================
+
+Table departments {
+  department_id int [pk, increment]
+  department_name varchar [not null]
+  budget decimal [not null]
+  spent_amount decimal [default: 0]
+  manager_employee_id int
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table employees {
+  id int [pk, increment]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique, not null]
+  phone varchar
+  document_type document_type [not null]
+  document_number varchar [not null]
+  hire_date date [not null]
+  salary decimal [not null]
+  commission_pct decimal [default: 0]
+  department_id int
+  manager_employee_id int
+  is_employee_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table customers {
+  id int [pk, increment]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique, not null]
+  phone varchar
+  document_type document_type [not null]
+  document_number varchar [not null]
+  is_company boolean [default: false]
+  tax_regime varchar
+  registration_date timestamp [default: `now()`]
+  loyalty_points int [default: 0]
+  total_orders int [default: 0]
+  total_spent decimal [default: 0]
+  is_vip boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table addresses {
+  id int [pk, increment]
+  customer_id int
+  type address_type [not null]
+  street varchar [not null]
+  neighborhood varchar
+  city varchar [not null]
+  department varchar [not null]
+  postal_code varchar
+  country varchar [default: 'Colombia']
+  reference text
+  latitude decimal
+  longitude decimal
+  is_default_address boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table warehouses {
+  id int [pk, increment]
+  warehouse_name varchar [not null]
+  warehouse_code varchar [unique, not null]
+  address varchar [not null]
+  neighborhood varchar
+  city varchar [not null]
+  department varchar [not null]
+  postal_code varchar
+  phone varchar
+  email varchar
+  manager_employee_id int 
+  is_warehouse_active boolean [default: true]
+  warehouse_capacity_units int
+  warehouse_operating_hours varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table categories {
+  id int [pk, increment]
+  category_name varchar [not null]
+  category_slug varchar [unique]
+  parent_id int
+  description text
+  display_order int [default: 0]
+  image_url varchar
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table products {
+  id int [pk, increment]
+  product_sku varchar [unique, not null]
+  product_barcode varchar [unique]
+  product_name varchar [not null]
+  description text
+  short_description varchar
+  category_id int 
+  base_price decimal [not null]
+  discount_price decimal
+  product_cost decimal [not null]
+  product_iva_rate decimal [default: 19]
+  product_is_taxable boolean [default: true]
+  product_weight decimal
+  product_dimensions varchar
+  stock_quantity int [default: 0]
+  product_units_sold int [default: 0]
+  product_reorder_level int [default: 10]
+  rating_average decimal [default: 0]
+  rating_count int [default: 0]
+  is_active boolean [default: true]
+  is_featured boolean [default: false]
+  product_images json
+  product_tags varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (category_id)
+    (product_sku)
+    (product_barcode)
+    (is_active, is_featured)
+  }
+}
+
+Table inventory {
+  id int [pk, increment]
+  product_id int
+  warehouse_id int
+  quantity_on_hand int [default: 0, not null]
+  quantity_reserved int [default: 0, not null]
+  quantity_available int [default: 0, not null]
+  reorder_point int [default: 10]
+  max_stock_level int
+  last_restock_date timestamp
+  last_counted_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (product_id, warehouse_id) [unique]
+    (warehouse_id, quantity_available)
+  }
+}
+
+Table orders {
+  id int [pk, increment]
+  order_number varchar [unique, not null]
+  customer_id int
+  employee_id int
+  shipping_address_id int
+  order_subtotal decimal [not null]
+  order_tax_amount decimal [not null]
+  order_shipping_cost decimal [default: 0, not null]
+  order_discount_amount decimal [default: 0, not null]
+  order_total_amount decimal [not null]
+  order_points_earned int [default: 0]
+  order_points_redeemed int [default: 0]
+  order_payment_method payment_method [not null]
+  order_status order_status [default: 'pending', not null]
+  is_invoice_required boolean [default: true]
+  order_date timestamp [default: `now()`, not null]
+  order_confirmed_at timestamp
+  order_processing_started_at timestamp
+  order_shipped_at timestamp
+  order_delivered_at timestamp
+  order_cancelled_at timestamp
+  order_customer_notes text
+  order_internal_notes text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (customer_id, order_date)
+    (order_status)
+    (order_number)
+  }
+}
+
+Table order_items {
+  id int [pk, increment]
+  order_id int
+  product_id int
+  item_quantity int [not null]
+  item_unit_price decimal [not null]
+  item_price_before_tax decimal [not null]
+  item_iva_amount decimal [not null]
+  item_discount_amount decimal [default: 0]
+  item_line_total decimal [not null]
+  fulfillment_warehouse_id int
+  is_order_item_fulfilled boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (order_id)
+    (product_id)
+  }
+}
+
+Table payments {
+  id int [pk, increment]
+  order_id int
+  payment_method payment_method [not null]
+  payment_amount decimal [not null]
+  payment_status payment_status [default: 'pending', not null]
+  payment_transaction_id varchar [unique]
+  payment_authorization_code varchar
+  payment_date timestamp
+  payment_gateway_response json
+  payment_failure_reason varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (order_id)
+    (payment_transaction_id)
+  }
+}
+
+Table shipments {
+  id int [pk, increment]
+  order_id int
+  shipment_carrier varchar [not null]
+  shipment_tracking_number varchar [unique]
+  shipment_service_type varchar
+  shipment_shipped_date timestamp
+  shipment_estimated_delivery_date date
+  shipment_actual_delivery_date date
+  shipment_status shipment_status [default: 'pending']
+  shipment_current_location varchar
+  shipment_cost decimal
+  shipment_delivery_attempts int [default: 0]
+  shipment_proof_of_delivery_url varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (shipment_tracking_number)
+    (order_id, shipment_status)
+  }
+}
+
+Table reviews {
+  id int [pk, increment]
+  product_id int 
+  customer_id int
+  review_rating int [not null]
+  review_title varchar
+  review_comment text
+  is_review_verified_purchase boolean [default: true]
+  review_helpful_count int [default: 0]
+  review_date timestamp [default: `now()`]
+  review_moderator_response text
+  review_images json
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (product_id, review_rating)
+    (customer_id, product_id) [unique, name: 'idx_one_review_per_product']
+  }
+  checks {
+    `review_rating >= 1 and review_rating <= 5` [name: 'rating_check']
+  }
+}
+
+Table invoices {
+  id int [pk, increment]
+  order_id int 
+  invoice_number varchar [unique, not null]
+  invoice_cufe varchar [unique, not null]
+  invoice_qr_code varchar [not null]
+  invoice_technical_key varchar [not null]
+  invoice_resolution_number varchar [not null]
+  invoice_authorization_date date
+  invoice_date timestamp [default: `now()`, not null]
+  invoice_due_date date
+  invoice_customer_document_type document_type [not null]
+  invoice_customer_document_number varchar [not null]
+  invoice_customer_name varchar [not null]
+  invoice_customer_email varchar
+  invoice_customer_address text
+  invoice_subtotal decimal [not null]
+  invoice_tax_amount decimal [not null]
+  invoice_discount_amount decimal [default: 0]
+  invoice_withholding_amount decimal [default: 0]
+  invoice_total_amount decimal [not null]
+  invoice_status invoice_status [default: 'draft', not null]
+  invoice_xml_content text
+  invoice_dian_response json
+  invoice_pdf_url varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  
+  indexes {
+    (invoice_number)
+    (invoice_cufe)
+    (invoice_customer_document_type, invoice_customer_document_number)
+    (invoice_date)
+    (order_id)
+  }
+}
+
+// ==================== RELACIONES ====================
+Ref: departments.manager_employee_id > employees.id
+Ref: employees.department_id > departments.department_id
+Ref: employees.manager_employee_id > employees.id
+Ref: addresses.customer_id > customers.id
+Ref: warehouses.manager_employee_id > employees.id
+Ref: categories.parent_id > categories.id
+Ref: products.category_id > categories.id
+Ref: inventory.product_id > products.id
+Ref: inventory.warehouse_id > warehouses.id
+Ref: order_items.order_id > orders.id
+Ref: order_items.product_id > products.id
+Ref: order_items.fulfillment_warehouse_id > warehouses.id
+Ref: orders.customer_id > customers.id
+Ref: orders.employee_id > employees.id
+Ref: orders.shipping_address_id > addresses.id
+Ref: payments.order_id > orders.id
+Ref: shipments.order_id > orders.id
+Ref: reviews.product_id > products.id
+Ref: reviews.customer_id > customers.id
+Ref: invoices.order_id > orders.id

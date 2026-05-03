@@ -4,3 +4,7 @@
 # .env
 .env
 .env.local
+
+# Cache
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php

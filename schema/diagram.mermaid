@@ -1,180 +1,284 @@
 erDiagram
-users {
-  int id PK
-    string email UK
-    string password
-    string role
-    timestamp email_verified_at
-    string remember_token
-    timestamp created_at
-    timestamp updated_at
-}
+    departments {
+        int department_id PK
+        string department_name
+        decimal budget
+        decimal spent_amount
+        int manager_employee_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
 
-students {
-  int id PK
-    int user_id FK
-    string student_code UK
-    string first_name
-    string last_name
-    date birth_date
-    string gender
-    string phone
-    text address
-    string guardian_phone
-    string photo
-    boolean is_active
-    timestamp created_at
-    timestamp updated_at
-}
+    employees {
+        int id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        string document_type
+        string document_number
+        date hire_date
+        decimal salary
+        decimal commission_pct
+        int department_id FK
+        int manager_employee_id FK
+        boolean is_employee_active
+        timestamp created_at
+        timestamp updated_at
+    }
 
-teachers {
-  int id PK
-    int user_id FK
-    string employee_code UK
-    string first_name
-    string last_name
-    string email UK
-    string phone
-    string specialty
-    boolean is_active
-    timestamp created_at
-    timestamp updated_at
-}
+    customers {
+        int id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        string document_type
+        string document_number
+        boolean is_company
+        string tax_regime
+        timestamp registration_date
+        int loyalty_points
+        int total_orders
+        decimal total_spent
+        boolean is_vip
+        timestamp created_at
+        timestamp updated_at
+    }
 
-academic_years {
-  int id PK
-    string name
-    date start_date
-    date end_date
-    boolean is_active
-    timestamp created_at
-}
+    addresses {
+        int id PK
+        int customer_id FK
+        string type
+        string street
+        string neighborhood
+        string city
+        string department
+        string postal_code
+        string country
+        text reference
+        decimal latitude
+        decimal longitude
+        boolean is_default_address
+        timestamp created_at
+        timestamp updated_at
+    }
 
-academic_periods {
-  int id PK
-    int academic_year_id FK
-    string name
-    date start_date
-    date end_date
-    int period_order
-    boolean is_closed
-    timestamp created_at
-}
+    warehouses {
+        int id PK
+        string warehouse_name
+        string warehouse_code UK
+        string address
+        string neighborhood
+        string city
+        string department
+        string postal_code
+        string phone
+        string email
+        int manager_employee_id FK
+        boolean is_warehouse_active
+        int warehouse_capacity_units
+        string warehouse_operating_hours
+        timestamp created_at
+        timestamp updated_at
+    }
 
-grades {
-  int id PK
-    string name
-    string level
-    int display_order
-}
+    categories {
+        int id PK
+        string category_name
+        string category_slug UK
+        int parent_id FK
+        text description
+        int display_order
+        string image_url
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
 
-sections {
-  int id PK
-    int grade_id FK
-    int academic_year_id FK
-    string name
-    int max_capacity
-    timestamp created_at
-}
+    products {
+        int id PK
+        string product_sku UK
+        string product_barcode UK
+        string product_name
+        text description
+        string short_description
+        int category_id FK
+        decimal base_price
+        decimal discount_price
+        decimal product_cost
+        decimal product_iva_rate
+        boolean product_is_taxable
+        decimal product_weight
+        string product_dimensions
+        int stock_quantity
+        int product_units_sold
+        int product_reorder_level
+        decimal rating_average
+        int rating_count
+        boolean is_active
+        boolean is_featured
+        json product_images
+        string product_tags
+        timestamp created_at
+        timestamp updated_at
+    }
 
-subjects {
-  int id PK
-    string code UK
-    string name
-    text description
-    int weekly_hours
-}
+    inventory {
+        int id PK
+        int product_id FK
+        int warehouse_id FK
+        int quantity_on_hand
+        int quantity_reserved
+        int quantity_available
+        int reorder_point
+        int max_stock_level
+        timestamp last_restock_date
+        timestamp last_counted_at
+        timestamp created_at
+        timestamp updated_at
+    }
 
-grade_subject {
-  int grade_id PK,FK
-    int subject_id PK,FK
-}
+    orders {
+        int id PK
+        string order_number UK
+        int customer_id FK
+        int employee_id FK
+        int shipping_address_id FK
+        decimal order_subtotal
+        decimal order_tax_amount
+        decimal order_shipping_cost
+        decimal order_discount_amount
+        decimal order_total_amount
+        int order_points_earned
+        int order_points_redeemed
+        string order_payment_method
+        string order_status
+        boolean is_invoice_required
+        timestamp order_date
+        timestamp order_confirmed_at
+        timestamp order_processing_started_at
+        timestamp order_shipped_at
+        timestamp order_delivered_at
+        timestamp order_cancelled_at
+        text order_customer_notes
+        text order_internal_notes
+        timestamp created_at
+        timestamp updated_at
+    }
 
-assignments {
-  int id PK
-    int teacher_id FK
-    int subject_id FK
-    int section_id FK
-    int academic_year_id FK
-}
+    order_items {
+        int id PK
+        int order_id FK
+        int product_id FK
+        int item_quantity
+        decimal item_unit_price
+        decimal item_price_before_tax
+        decimal item_iva_amount
+        decimal item_discount_amount
+        decimal item_line_total
+        int fulfillment_warehouse_id FK
+        boolean is_order_item_fulfilled
+        timestamp created_at
+        timestamp updated_at
+    }
 
-enrollments {
-  int id PK
-    int student_id FK
-    int section_id FK
-    int academic_year_id FK
-    date enrollment_date
-    string status
-}
+    payments {
+        int id PK
+        int order_id FK
+        string payment_method
+        decimal payment_amount
+        string payment_status
+        string payment_transaction_id UK
+        string payment_authorization_code
+        timestamp payment_date
+        json payment_gateway_response
+        string payment_failure_reason
+        timestamp created_at
+        timestamp updated_at
+    }
 
-attendances {
-  int id PK
-    int assignment_id FK
-    int student_id FK
-    date attendance_date
-    string status
-    text notes
-}
+    shipments {
+        int id PK
+        int order_id FK
+        string shipment_carrier
+        string shipment_tracking_number UK
+        string shipment_service_type
+        timestamp shipment_shipped_date
+        date shipment_estimated_delivery_date
+        date shipment_actual_delivery_date
+        string shipment_status
+        string shipment_current_location
+        decimal shipment_cost
+        int shipment_delivery_attempts
+        string shipment_proof_of_delivery_url
+        timestamp created_at
+        timestamp updated_at
+    }
 
-evaluation_types {
-  int id PK
-    int subject_id FK
-    string name
-    decimal weight
-}
+    reviews {
+        int id PK
+        int product_id FK
+        int customer_id FK
+        int review_rating
+        string review_title
+        text review_comment
+        boolean is_review_verified_purchase
+        int review_helpful_count
+        timestamp review_date
+        text review_moderator_response
+        json review_images
+        timestamp created_at
+        timestamp updated_at
+    }
 
-grades_record {
-  int id PK
-    int enrollment_id FK
-    int subject_id FK
-    int academic_period_id FK
-    int evaluation_type_id FK
-    decimal score
-    date evaluation_date
-    int teacher_id FK
-    text notes
-}
+    invoices {
+        int id PK
+        int order_id FK
+        string invoice_number UK
+        string invoice_cufe UK
+        string invoice_qr_code
+        string invoice_technical_key
+        string invoice_resolution_number
+        date invoice_authorization_date
+        timestamp invoice_date
+        date invoice_due_date
+        string invoice_customer_document_type
+        string invoice_customer_document_number
+        string invoice_customer_name
+        string invoice_customer_email
+        text invoice_customer_address
+        decimal invoice_subtotal
+        decimal invoice_tax_amount
+        decimal invoice_discount_amount
+        decimal invoice_withholding_amount
+        decimal invoice_total_amount
+        string invoice_status
+        text invoice_xml_content
+        json invoice_dian_response
+        string invoice_pdf_url
+        timestamp created_at
+        timestamp updated_at
+    }
 
-school_info {
-  int id PK
-    string name
-    string logo
-    text address
-    string phone
-    string email
-    string website
-    timestamp created_at
-    timestamp updated_at
-}
-
-%% Relaciones
-users ||--o| students : "user_id (one-to-one)"
-users ||--o| teachers : "user_id (one-to-one)"
-
-academic_years ||--o{ academic_periods : "academic_year_id"
-academic_years ||--o{ sections : "academic_year_id"
-academic_years ||--o{ assignments : "academic_year_id"
-academic_years ||--o{ enrollments : "academic_year_id"
-
-grades ||--o{ sections : "grade_id"
-grades ||--o{ grade_subject : "grade_id"
-subjects ||--o{ grade_subject : "subject_id"
-subjects ||--o{ assignments : "subject_id"
-subjects ||--o{ evaluation_types : "subject_id"
-
-sections ||--o{ assignments : "section_id"
-sections ||--o{ enrollments : "section_id"
-
-teachers ||--o{ assignments : "teacher_id"
-teachers ||--o{ grades_record : "teacher_id"
-
-students ||--o{ enrollments : "student_id"
-students ||--o{ attendances : "student_id"
-
-assignments ||--o{ attendances : "assignment_id"
-
-enrollments ||--o{ grades_record : "enrollment_id"
-
-academic_periods ||--o{ grades_record : "academic_period_id"
-
-evaluation_types ||--o{ grades_record : "evaluation_type_id"
+    %% Relaciones
+    employees ||--o{ departments : "manages"
+    departments ||--o{ employees : "belongs to"
+    employees ||--o{ employees : "reports to"
+    customers ||--o{ addresses : "has"
+    employees ||--o{ warehouses : "manages"
+    categories ||--o{ categories : "sub-category"
+    categories ||--o{ products : "categorizes"
+    products ||--o{ inventory : "in stock"
+    warehouses ||--o{ inventory : "stores"
+    orders ||--o{ order_items : "includes"
+    products ||--o{ order_items : "item"
+    warehouses ||--o{ order_items : "fulfills"
+    customers ||--o{ orders : "places"
+    employees ||--o{ orders : "handles"
+    addresses ||--o{ orders : "ships to"
+    orders ||--o{ payments : "paid by"
+    orders ||--o{ shipments : "delivered via"
+    products ||--o{ reviews : "reviewed"
+    customers ||--o{ reviews : "authored"
+    orders ||--o{ invoices : "billed as"
